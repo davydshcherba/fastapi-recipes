@@ -18,8 +18,15 @@ def token_response(token: str):
 def signJWT(user_id: str) -> Dict[str, str]:
     payload = {
         "user_id": user_id,
-        "expires": time.time() + 900
+        "exp": int(time.time()) + 900
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
     return token_response(token)
+
+
+def decode_jwt(token: str) -> dict | None:
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.PyJWTError:
+        return None

@@ -13,13 +13,16 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+        title="FastAPI recipe 🍉",
+        lifespan=lifespan
+    )
 
 
-@app.get("/health")
+@app.get("/health", tags=["Health 🏥"])
 def health():
     """ HEALTH CHECKER """
     return "OK OK OK"
 
-app.include_router(user_router,tags=["USER"])
-app.include_router(recipes_router, tags=["RECIPES"])
+app.include_router(user_router,tags=["User 🙆‍♂️"])
+app.include_router(recipes_router, tags=["Recipes 🍰"])

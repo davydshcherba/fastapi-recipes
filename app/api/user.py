@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy.sql import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import signJWT

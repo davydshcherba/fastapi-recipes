@@ -7,6 +7,7 @@ security = HTTPBearer()
 
 
 def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
+    """FastAPI dependency that extracts and validates the bearer JWT, returning the user id."""
     payload = decode_jwt(credentials.credentials)
     if payload is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")

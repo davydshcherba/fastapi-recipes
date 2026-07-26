@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class RecipeModel(Base):
-    """A recipe a user choose to save"""
+    """A recipe a user chose to save."""
 
     __tablename__ = "recipe"
 
@@ -19,8 +19,8 @@ class RecipeModel(Base):
     title: Mapped[str] = mapped_column(String(250))
     cuisine: Mapped[str | None] = mapped_column(String(100), default=None)
     servings: Mapped[int] = mapped_column(default=2)
-    ingredients: Mapped[list[str]] = mapped_column(JSON, default=list)
-    steps: Mapped[list[str]] = mapped_column(JSON, default=list)
+    ingredients: Mapped[list[str]] = mapped_column(JSON, default=list)  # free-text lines, no structured qty/unit
+    steps: Mapped[list[str]] = mapped_column(JSON, default=list)  # ordered preparation steps
 
     owner_id: Mapped[int] = mapped_column(ForeignKey("user.id"), index=True)
     created_at: Mapped[datetime] = mapped_column(

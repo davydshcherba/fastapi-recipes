@@ -11,6 +11,7 @@ user_router = APIRouter()
 
 @user_router.post("/login")
 async def login_user(username: str, password: str, session: AsyncSession = Depends(get_session)):
+    """Authenticate a user by username/password and return a signed JWT."""
     result = await session.execute(select(UserModel).where(UserModel.username == username))
     user = result.scalar_one_or_none()
 
@@ -21,6 +22,7 @@ async def login_user(username: str, password: str, session: AsyncSession = Depen
 
 @user_router.post("/register")
 async def register_user(username: str, password: str, session: AsyncSession = Depends(get_session)):
+    """Create a new user account and return a signed JWT for it."""
     user = UserModel(username=username, hashed_password=password)
     session.add(user)
     await session.commit()

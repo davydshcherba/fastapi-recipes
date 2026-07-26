@@ -11,6 +11,7 @@ recipes_router = APIRouter()
 
 @recipes_router.get("/recipes")
 async def get_recipe(id: int, session: AsyncSession = Depends(get_session)):
+    """Fetch a single recipe by id, regardless of owner."""
     recipe = await session.execute(select(RecipeModel).where(RecipeModel.id == id))
 
     result = recipe.scalar_one_or_none()
@@ -24,6 +25,7 @@ async def create_recipe(
     session: AsyncSession = Depends(get_session),
     owner_id: int = Depends(get_current_user_id),
 ):
+    """Create a recipe owned by the authenticated user."""
     recipe = RecipeModel(title=data.title, cuisine=data.cuisine, servings=data.servings, steps=data.steps, ingredients=data.ingredients, owner_id=owner_id)
     session.add(recipe)
     await session.commit()

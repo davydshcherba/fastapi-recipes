@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class UserModel(Base):
+    """A registered application user."""
+
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)

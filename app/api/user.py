@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.sql import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import Hasher, signJWT
+from app.utils.auth import Hasher, signJWT
 from app.core.db import get_session
 from app.models import UserModel
 

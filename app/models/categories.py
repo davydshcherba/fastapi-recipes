@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import Column, DateTime, ForeignKey, String, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 recipe_category_table = Table(
     "recipe_category",
     Base.metadata,
-    Column("recipe_id", ForeignKey("recipe.id"), primary_key=True),
-    Column("category_id", ForeignKey("category.id"), primary_key=True),
+    Column[Any]("recipe_id", ForeignKey("recipe.id"), primary_key=True),
+    Column[Any]("category_id", ForeignKey("category.id"), primary_key=True),
 )
 
 

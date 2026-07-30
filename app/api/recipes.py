@@ -10,7 +10,7 @@ from app.schemas import CreateRecipeSchema
 recipes_router = APIRouter()
 
 @recipes_router.get("/recipes")
-async def get_recipe_by_owner_id(owner_id: int, session: AsyncSession = Depends(get_session)):
+async def get_recipe_by_owner_id(owner_id: int = Depends(get_current_user_id), session: AsyncSession = Depends(get_session)):
     """Fetch a single recipe by id, regardless of owner."""
     recipe = await session.execute(select(RecipeModel).where(RecipeModel.owner_id == owner_id))
 

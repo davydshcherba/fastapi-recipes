@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
 if TYPE_CHECKING:
+    from .categories import CategoryModel
     from .recipes import RecipeModel
 
 
@@ -23,3 +24,4 @@ class UserModel(Base):
     )
 
     recipes: Mapped[list["RecipeModel"]] = relationship(back_populates="owner")
+    categories: Mapped[list["CategoryModel"]] = relationship(back_populates="owner")

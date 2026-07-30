@@ -5,8 +5,10 @@ from sqlalchemy import JSON, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .categories import recipe_category_table
 
 if TYPE_CHECKING:
+    from .categories import CategoryModel
     from .user import UserModel
 
 
@@ -28,3 +30,6 @@ class RecipeModel(Base):
     )
 
     owner: Mapped["UserModel"] = relationship(back_populates="recipes")
+    categories: Mapped[list["CategoryModel"]] = relationship(
+        secondary=recipe_category_table, back_populates="recipes"
+    )

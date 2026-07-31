@@ -28,10 +28,11 @@ async def _get_owned_category(id: int, owner_id: int, session: AsyncSession) -> 
 
 
 @categories_router.get("/categories")
-async def get_categories(session: AsyncSession = Depends(get_session)):
+async def get_categories(session: AsyncSession = Depends(get_session), owner_id: int = Depends(get_current_user_id)):
     """List all categories, regardless of owner."""
-    result = await session.execute(select(CategoryModel))
-
+    result = await session.execute(
+        select(CategoryModel).options(selectinload(CategoryModel.recipes)).where(CategoryModel.owner_id == owner_id)
+    )
     return result.scalars().all()
 
 

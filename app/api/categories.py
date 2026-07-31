@@ -29,7 +29,7 @@ async def _get_owned_category(id: int, owner_id: int, session: AsyncSession) -> 
 
 @categories_router.get("/categories")
 async def get_categories(session: AsyncSession = Depends(get_session), owner_id: int = Depends(get_current_user_id)):
-    """List all categories, regardless of owner."""
+    """List all categories owned by the authenticated user."""
     result = await session.execute(
         select(CategoryModel).options(selectinload(CategoryModel.recipes)).where(CategoryModel.owner_id == owner_id)
     )
@@ -37,17 +37,13 @@ async def get_categories(session: AsyncSession = Depends(get_session), owner_id:
 
 
 @categories_router.get("/categories/{id}")
-async def get_category(id: int, session: AsyncSession = Depends(get_session)):
-    """Fetch a single category by id, together with its recipes."""
-    result = await session.execute(
-        select(CategoryModel).options(selectinload(CategoryModel.recipes)).where(CategoryModel.id == id)
-    )
-    category = result.scalar_one_or_none()
-
-    if category is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-
-    return category
+async def get_category(
+    id: int,
+    session: AsyncSession = Depends(get_session),
+    owner_id: int = Depends(get_current_user_id),
+):
+    """Fetch a single category owned by the authenticated user, together with its recipes."""
+    return await _get_owned_category(id, owner_id, session)
 
 
 @categories_router.post("/categories")
@@ -97,6 +93,19 @@ async def delete_category(
     return {"detail": "Category deleted"}
 
 
+async def _get_owned_recipe(id: int, owner_id: int, session: AsyncSession) -> RecipeModel:
+    """Fetch a recipe by id and ensure the authenticated user owns it."""
+    recipe = await session.get(RecipeModel, id)
+
+    if recipe is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
+
+    if recipe.owner_id != owner_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your recipe")
+
+    return recipe
+
+
 @categories_router.post("/categories/{id}/recipes/{recipe_id}")
 async def add_recipe_to_category(
     id: int,
@@ -104,12 +113,9 @@ async def add_recipe_to_category(
     session: AsyncSession = Depends(get_session),
     owner_id: int = Depends(get_current_user_id),
 ):
-    """Attach a recipe to a category owned by the authenticated user."""
+    """Attach a recipe to a category, both owned by the authenticated user."""
     category = await _get_owned_category(id, owner_id, session)
-    recipe = await session.get(RecipeModel, recipe_id)
-
-    if recipe is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
+    recipe = await _get_owned_recipe(recipe_id, owner_id, session)
 
     if recipe not in category.recipes:
         category.recipes.append(recipe)
@@ -126,11 +132,11 @@ async def remove_recipe_from_category(
     session: AsyncSession = Depends(get_session),
     owner_id: int = Depends(get_current_user_id),
 ):
-    """Detach a recipe from a category owned by the authenticated user."""
+    """Detach a recipe from a category, both owned by the authenticated user."""
     category = await _get_owned_category(id, owner_id, session)
-    recipe = await session.get(RecipeModel, recipe_id)
+    recipe = await _get_owned_recipe(recipe_id, owner_id, session)
 
-    if recipe is not None and recipe in category.recipes:
+    if recipe in category.recipes:
         category.recipes.remove(recipe)
         await session.commit()
         await session.refresh(category)

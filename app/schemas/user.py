@@ -13,4 +13,9 @@ class RegisterSchema(BaseModel):
 
     username: str
     password: str
-    
+
+
+class RefreshTokenSchema(BaseModel):
+    """Request body for token refresh."""
+
+    refresh_token: str

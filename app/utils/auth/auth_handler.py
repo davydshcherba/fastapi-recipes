@@ -8,27 +8,44 @@ from decouple import config
 JWT_SECRET = config("JWT_SECRET")
 JWT_ALGORITHM = config("JWT_ALGORITHM")
 
-
-def token_response(token: str):
-    return {
-        "access_token": token
-    }
+ACCESS_TOKEN_TTL_SECONDS = 900  # 15 minutes
+REFRESH_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 days
 
 
-def signJWT(user_id: str) -> Dict[str, str]:
-    """Issue a JWT for the given user id, valid for 15 minutes."""
+def _encode(user_id: str, token_type: str, ttl_seconds: int) -> str:
     payload = {
         "user_id": user_id,
-        "exp": int(time.time()) + 900
+        "type": token_type,
+        "exp": int(time.time()) + ttl_seconds,
     }
-    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-
-    return token_response(token)
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
-def decode_jwt(token: str) -> dict | None:
-    """Decode and verify a JWT, returning its payload or None if invalid/expired."""
+def token_pair_response(user_id: str) -> Dict[str, str]:
+    """Issue a fresh access/refresh token pair for the given user id."""
+    return {
+        "access_token": _encode(user_id, "access", ACCESS_TOKEN_TTL_SECONDS),
+        "refresh_token": _encode(user_id, "refresh", REFRESH_TOKEN_TTL_SECONDS),
+    }
+
+
+def decode_jwt(token: str, expected_type: str = "access") -> dict | None:
+    """Decode and verify a JWT of the given type, returning its payload or None if invalid/expired/wrong type."""
     try:
-        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except jwt.PyJWTError:
         return None
+
+    if payload.get("type") != expected_type:
+        return None
+
+    return payload
+
+
+def refresh_access_token(token: str) -> Dict[str, str] | None:
+    """Exchange a valid, non-expired refresh token for a new access/refresh token pair."""
+    payload = decode_jwt(token, expected_type="refresh")
+    if payload is None:
+        return None
+
+    return token_pair_response(payload["user_id"])

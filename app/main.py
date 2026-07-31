@@ -1,12 +1,15 @@
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
 from app.api import user_router
 from app.api import recipes_router
 from app.api import categories_router
 
+
 app = FastAPI(
         title="FastAPI recipe 🍉",
     )
+add_pagination(app)
 
 
 @app.get("/health", tags=["Health 🏥"])

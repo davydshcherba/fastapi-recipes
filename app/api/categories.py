@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate as sqlalchemy_paginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -6,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from app.utils.auth import get_current_user_id
 from app.core.db import get_session
 from app.models import CategoryModel, RecipeModel
-from app.schemas import CreateCategorySchema, UpdateCategorySchema
+from app.schemas import CategorySchema, CreateCategorySchema, UpdateCategorySchema
 
 categories_router = APIRouter()
 
@@ -28,12 +30,17 @@ async def _get_owned_category(id: int, owner_id: int, session: AsyncSession) -> 
 
 
 @categories_router.get("/categories")
-async def get_categories(session: AsyncSession = Depends(get_session), owner_id: int = Depends(get_current_user_id)):
-    """List all categories owned by the authenticated user."""
-    result = await session.execute(
-        select(CategoryModel).options(selectinload(CategoryModel.recipes)).where(CategoryModel.owner_id == owner_id)
+async def get_categories(
+    session: AsyncSession = Depends(get_session), owner_id: int = Depends(get_current_user_id)
+) -> Page[CategorySchema]:
+    """List all categories owned by the authenticated user, paginated."""
+    query = (
+        select(CategoryModel)
+        .options(selectinload(CategoryModel.recipes))
+        .where(CategoryModel.owner_id == owner_id)
+        .order_by(CategoryModel.id)
     )
-    return result.scalars().all()
+    return await sqlalchemy_paginate(session, query)
 
 
 @categories_router.get("/categories/{id}")

@@ -18,6 +18,7 @@ async def get_recipe_by_owner_id(
     """List recipes owned by the authenticated user, paginated."""
     query = select(RecipeModel).where(RecipeModel.owner_id == owner_id).order_by(RecipeModel.id)
     return await sqlalchemy_paginate(session, query)
+    # TODO: Write some tests
 
 
 @recipes_router.post("/recipes")
@@ -33,3 +34,4 @@ async def create_recipe(
     await session.refresh(recipe)
 
     return recipe
+    # TODO: Write some tests

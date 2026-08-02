@@ -41,6 +41,7 @@ async def get_categories(
         .order_by(CategoryModel.id)
     )
     return await sqlalchemy_paginate(session, query)
+    # TODO: Write some tests
 
 
 @categories_router.get("/categories/{id}")
@@ -51,6 +52,7 @@ async def get_category(
 ):
     """Fetch a single category owned by the authenticated user, together with its recipes."""
     return await _get_owned_category(id, owner_id, session)
+    # TODO: Write some tests
 
 
 @categories_router.post("/categories")
@@ -66,7 +68,7 @@ async def create_category(
     await session.refresh(category)
 
     return category
-
+    # TODO: Write some tests
 
 @categories_router.put("/categories/{id}")
 async def update_category(
@@ -83,6 +85,7 @@ async def update_category(
     await session.refresh(category)
 
     return category
+    # TODO: Write some tests
 
 
 @categories_router.delete("/categories/{id}")
@@ -98,6 +101,7 @@ async def delete_category(
     await session.commit()
 
     return {"detail": "Category deleted"}
+    # TODO: Write some tests
 
 
 async def _get_owned_recipe(id: int, owner_id: int, session: AsyncSession) -> RecipeModel:
@@ -111,6 +115,7 @@ async def _get_owned_recipe(id: int, owner_id: int, session: AsyncSession) -> Re
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your recipe")
 
     return recipe
+    # TODO: Write some tests
 
 
 @categories_router.post("/categories/{id}/recipes/{recipe_id}")
@@ -130,6 +135,7 @@ async def add_recipe_to_category(
         await session.refresh(category)
 
     return category
+    # TODO: Write some tests
 
 
 @categories_router.delete("/categories/{id}/recipes/{recipe_id}")
@@ -149,3 +155,4 @@ async def remove_recipe_from_category(
         await session.refresh(category)
 
     return category
+    # TODO: Write some tests

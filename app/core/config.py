@@ -7,5 +7,6 @@ class Settings(BaseSettings):
     db_url: str
     jwt_secret: str
     jwt_algorithm: str
+    gemini_api_key: str
 
 settings = Settings()

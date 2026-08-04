@@ -7,7 +7,7 @@ class CreateRecipeSchema(BaseModel):
 
     title: str
     cuisine: str
-    steps: int
+    steps: list[str]
     servings: int
     ingredients: list[str]
 

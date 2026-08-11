@@ -34,3 +34,11 @@ class RecipeSchema(BaseModel):
     steps: list[str]
     owner_id: int
     created_at: datetime
+
+
+class RecipeAIResponse(BaseModel):
+    title: str
+    cuisine: str | None
+    servings: int
+    ingredients: list[str]
+    steps: list[str]

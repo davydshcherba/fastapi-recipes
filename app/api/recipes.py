@@ -8,7 +8,7 @@ from app.utils.auth import get_current_user_id
 from app.core.db import get_session
 from app.models import RecipeModel
 from app.schemas import CreateRecipeSchema, RecipeSchema
-
+from app.utils.gemini.gemini_client import client as gemini_client
 recipes_router = APIRouter()
 
 @recipes_router.get("/recipes")
@@ -35,3 +35,12 @@ async def create_recipe(
 
     return recipe
     # TODO: Write some tests
+
+@recipes_router.post("/create-recipe-ai")
+def create_recipe_by_ingredients(ingredients: list[str]) -> dict[str, str]:
+    response = gemini_client.models.generate_content(
+        model="gemini-2.5-flash-lite",
+        contents=f"Create a recipe for {ingredients}",
+    )
+
+    return {"recipe": response.text}

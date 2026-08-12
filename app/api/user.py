@@ -20,6 +20,7 @@ async def login_user(data: LoginSchema, session: AsyncSession = Depends(get_sess
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
     return token_pair_response(user.id)
+    # TODO: Write some tests
 
 @user_router.post("/register")
 async def register_user(data: RegisterSchema, session: AsyncSession = Depends(get_session)):
@@ -30,6 +31,7 @@ async def register_user(data: RegisterSchema, session: AsyncSession = Depends(ge
     await session.refresh(user)
 
     return token_pair_response(user.id)
+    # TODO: Write some tests
 
 @user_router.post("/refresh")
 async def refresh_token(data: RefreshTokenSchema):
@@ -39,3 +41,4 @@ async def refresh_token(data: RefreshTokenSchema):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
 
     return tokens
+    # TODO: Write some tests

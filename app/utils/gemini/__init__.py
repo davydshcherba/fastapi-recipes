@@ -1,0 +1,1 @@
+from app.utils.gemini.gemini_client import client

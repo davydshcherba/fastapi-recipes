@@ -1,13 +1,16 @@
+import json
+
 from fastapi import APIRouter, Depends
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqlalchemy_paginate
+from google.genai import types
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.utils.auth import get_current_user_id
 from app.core.db import get_session
 from app.models import RecipeModel
-from app.schemas import CreateRecipeSchema, RecipeSchema, RecipeAIResponse
+from app.schemas import CreateRecipeSchema, RecipeAIResponse, RecipeSchema
+from app.utils.auth import get_current_user_id
 from app.utils.gemini.gemini_client import client as gemini_client
 recipes_router = APIRouter()
 
@@ -36,10 +39,10 @@ async def create_recipe(
     return recipe
     # TODO: Write some tests
 
-from google.genai import types
 
 
-@recipes_router.post("/create-recipe-ai", response_model=RecipeSchema)
+
+@recipes_router.post("/create-recipe-ai")
 async def create_recipe_by_ingredients(
     ingredients: list[str],
     session: AsyncSession = Depends(get_session),
@@ -62,20 +65,4 @@ async def create_recipe_by_ingredients(
         ),
     )
 
-    recipe_data = RecipeAIResponse.model_validate_json(response.text)
-
-    recipe = RecipeModel(
-        title=recipe_data.title,
-        cuisine=recipe_data.cuisine,
-        servings=recipe_data.servings,
-        ingredients=recipe_data.ingredients,
-        steps=recipe_data.steps,
-        owner_id=owner_id,
-    )
-
-    session.add(recipe)
-
-    await session.commit()
-    await session.refresh(recipe)
-
-    return recipe
+    return json.loads(response.text)

@@ -18,9 +18,12 @@ A small FastAPI service for saving and retrieving recipes, with JWT-based user a
 
 ## Setup
 
+All commands below are run from the `backend/` directory.
+
 1. Install dependencies:
 
    ```bash
+   cd backend
    uv sync
    ```
 
@@ -81,11 +84,12 @@ Migrations are managed with Alembic and live in `alembic/versions/`.
 ## Project layout
 
 ```
-app/
-  api/        # FastAPI routers (recipes, user)
-  auth/       # JWT signing/verification, auth dependency
-  core/       # settings and DB session/engine
-  models/     # SQLAlchemy ORM models
-  schemas/    # Pydantic request/response schemas
-alembic/      # migration environment and versions
+backend/
+  app/
+    api/        # FastAPI routers (recipes, user)
+    auth/       # JWT signing/verification, auth dependency
+    core/       # settings and DB session/engine
+    models/     # SQLAlchemy ORM models
+    schemas/    # Pydantic request/response schemas
+  alembic/      # migration environment and versions
 ```

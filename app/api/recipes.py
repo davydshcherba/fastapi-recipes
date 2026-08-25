@@ -42,7 +42,7 @@ async def create_recipe(
 
 
 
-@recipes_router.post("/create-recipe-ai")
+@recipes_router.post("/create-recipe-ai", response_model=RecipeSchema)
 async def create_recipe_by_ingredients(
     ingredients: list[str],
     session: AsyncSession = Depends(get_session),
@@ -65,4 +65,20 @@ async def create_recipe_by_ingredients(
         ),
     )
 
-    return json.loads(response.text)
+    recipe_data = RecipeAIResponse.model_validate_json(response.text)
+
+    recipe = RecipeModel(
+        title=recipe_data.title,
+        cuisine=recipe_data.cuisine,
+        servings=recipe_data.servings,
+        ingredients=recipe_data.ingredients,
+        steps=recipe_data.steps,
+        owner_id=owner_id,
+    )
+
+    session.add(recipe)
+
+    await session.commit()
+    await session.refresh(recipe)
+
+    return recipe
